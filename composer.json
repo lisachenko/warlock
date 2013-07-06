@@ -1,0 +1,15 @@
+{
+    "name": "lisachenko/warlock",
+    "description": "Warlock AOP+DIC component",
+    "minimum-stability": "dev",
+    "authors": [
+        {
+            "name": "Alexander Lisachenko",
+            "email": "lisachenko.it@gmail.com"
+        }
+    ],
+    "require": {
+        "lisachenko/go-aop-php": "dev-master",
+        "symfony/dependency-injection": "2.3.x-dev"
+    }
+}
