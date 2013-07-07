@@ -1,0 +1,32 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <parameters>
+        <parameter key="debug.aspect.class">Demo\Aspect\DebugAspect</parameter>
+        <parameter key="fluent_interface.aspect.class">Demo\Aspect\FluentInterfaceAspect</parameter>
+        <parameter key="healthy_live.aspect.class">Demo\Aspect\HealthyLiveAspect</parameter>
+    </parameters>
+
+    <services>
+
+        <service id="debug.aspect" class="%debug.aspect.class%">
+            <argument type="string">test</argument>
+            <tag name="go.aspect"/>
+        </service>
+
+        <service id="fluent_interface.aspect" class="%fluent_interface.aspect.class%">
+            <!--Let's inject the container for example-->
+            <argument type="service" id="service_container"/>
+            <tag name="go.aspect"/>
+        </service>
+
+        <service id="healthy_live.aspect" class="%healthy_live.aspect.class%">
+            <tag name="go.aspect"/>
+        </service>
+
+    </services>
+
+</container>

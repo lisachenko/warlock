@@ -1,0 +1,62 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <parameters>
+        <parameter key="aspect.annotation.reader.class">Doctrine\Common\Annotations\AnnotationReader</parameter>
+        <parameter key="aspect.annotation.raw.reader.class">Go\Instrument\RawAnnotationReader</parameter>
+        <parameter key="aspect.pointcut.lexer.class">Go\Aop\Pointcut\PointcutLexer</parameter>
+        <parameter key="aspect.pointcut.grammar.class">Go\Aop\Pointcut\PointcutGrammar</parameter>
+        <parameter key="aspect.pointcut.parser.class">Dissect\Parser\LALR1\Parser</parameter>
+        <parameter key="aspect.loader.class">Go\Core\AspectLoader</parameter>
+        <parameter key="aspect.weaver.class">Go\Core\AspectWeaver</parameter>
+        <parameter key="aspect.loader.general.extension.class">Go\Core\GeneralAspectLoaderExtension</parameter>
+        <parameter key="aspect.loader.introduction.extension.class">Go\Core\IntroductionAspectExtension</parameter>
+    </parameters>
+
+    <services>
+        <service id="aspect.annotation.reader" class="%aspect.annotation.reader.class%"/>
+
+        <service id="aspect.annotation.raw.reader" class="%aspect.annotation.raw.reader.class%"/>
+
+        <service id="aspect.pointcut.lexer" class="%aspect.pointcut.lexer.class%"/>
+        <service id="aspect.pointcut.grammar" class="%aspect.pointcut.grammar.class%">
+            <argument type="service" id="service_container"/>
+        </service>
+
+        <service id="aspect.pointcut.parser" class="%aspect.pointcut.parser.class%">
+            <argument type="service" id="aspect.pointcut.grammar"/>
+            <!--TODO: inject parse table-->
+        </service>
+
+        <service id="aspect.loader.general.extension" class="%aspect.loader.general.extension.class%">
+            <tag name="aspect.loader.extension"/>
+        </service>
+
+        <service id="aspect.loader.introduction.extension" class="%aspect.loader.introduction.extension.class%">
+            <tag name="aspect.loader.extension"/>
+        </service>
+
+        <service id="aspect.loader" class="%aspect.loader.class%">
+            <argument type="service" id="service_container"/>
+
+            <call method="registerLoaderExtension">
+                <argument type="service" id="aspect.loader.general.extension"/>
+            </call>
+
+            <call method="registerLoaderExtension">
+                <argument type="service" id="aspect.loader.introduction.extension"/>
+            </call>
+        </service>
+
+        <service id="aspect.weaver" class="%aspect.weaver.class%">
+            <argument type="service" id="aspect.loader"/>
+            <argument type="service" id="service_container"/>
+        </service>
+
+    </services>
+
+
+</container>
