@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "b8942165b6e3e1d09ebf2a42fc314b45",
+    "hash": "153c595b5b6f70686a72e7e3384a8a91",
     "packages": [
         {
             "name": "andrewsville/php-token-reflection",
@@ -177,16 +177,16 @@
         },
         {
             "name": "lisachenko/go-aop-php",
-            "version": "dev-master",
+            "version": "dev-feature/dic-support",
             "source": {
                 "type": "git",
                 "url": "https://github.com/lisachenko/go-aop-php.git",
-                "reference": "f73537b1b0293df280fbfb38e33d051819539837"
+                "reference": "9930fdce689659b1b1de5e1c45e736949fe48ec1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/lisachenko/go-aop-php/zipball/f73537b1b0293df280fbfb38e33d051819539837",
-                "reference": "f73537b1b0293df280fbfb38e33d051819539837",
+                "url": "https://api.github.com/repos/lisachenko/go-aop-php/zipball/9930fdce689659b1b1de5e1c45e736949fe48ec1",
+                "reference": "9930fdce689659b1b1de5e1c45e736949fe48ec1",
                 "shasum": ""
             },
             "require": {
@@ -228,7 +228,7 @@
                 "library",
                 "php"
             ],
-            "time": "2013-07-06 12:38:02"
+            "time": "2013-07-07 17:17:10"
         },
         {
             "name": "symfony/config",

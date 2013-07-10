@@ -31,11 +31,13 @@
             <!--TODO: inject parse table-->
         </service>
 
-        <service id="aspect.loader.general.extension" class="%aspect.loader.general.extension.class%">
+        <service id="aspect.loader.general.extension" class="%aspect.loader.general.extension.class%" public="false">
             <tag name="aspect.loader.extension"/>
         </service>
 
-        <service id="aspect.loader.introduction.extension" class="%aspect.loader.introduction.extension.class%">
+        <service id="aspect.loader.introduction.extension"
+                 class="%aspect.loader.introduction.extension.class%"
+                 public="false">
             <tag name="aspect.loader.extension"/>
         </service>
 
