@@ -5,21 +5,29 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <parameters>
+        <parameter key="warlock.autowiring.aspect.class">Warlock\Aspect\AutowiringAspect</parameter>
+        <parameter key="warlock.fluent_interface.aspect.class">Warlock\Aspect\FluentInterfaceAspect</parameter>
+
+        <!--TODO: remove services below-->
         <parameter key="debug.aspect.class">Demo\Aspect\DebugAspect</parameter>
-        <parameter key="fluent_interface.aspect.class">Demo\Aspect\FluentInterfaceAspect</parameter>
         <parameter key="healthy_live.aspect.class">Demo\Aspect\HealthyLiveAspect</parameter>
     </parameters>
 
     <services>
 
-        <service id="debug.aspect" class="%debug.aspect.class%">
-            <argument type="string">test</argument>
+        <service id="warlock.fluent_interface.aspect" class="%warlock.fluent_interface.aspect.class%">
             <tag name="go.aspect"/>
         </service>
 
-        <service id="fluent_interface.aspect" class="%fluent_interface.aspect.class%">
-            <!--Let's inject the container for example-->
+        <service id="warlock.autowiring.aspect" class="%warlock.autowiring.aspect.class%">
             <argument type="service" id="service_container"/>
+            <argument type="service" id="aspect.annotation.reader"/>
+            <tag name="go.aspect"/>
+        </service>
+
+        <!--TODO: remove services below-->
+        <service id="debug.aspect" class="%debug.aspect.class%">
+            <argument type="string">test</argument>
             <tag name="go.aspect"/>
         </service>
 
