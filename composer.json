@@ -9,7 +9,7 @@
         }
     ],
     "require": {
-        "lisachenko/go-aop-php": "dev-feature/dic-support",
+        "lisachenko/go-aop-php": "0.4.x-dev",
         "symfony/dependency-injection": "2.3.x-dev",
         "symfony/config": "2.3.x-dev"
     },

@@ -25,6 +25,20 @@ class WarlockContainer extends Container implements AspectContainer
     protected $tags = array();
 
     /**
+     * List of resources for application
+     *
+     * @var array
+     */
+    protected $resources = array();
+
+    /**
+     * Cached timestamp for resources
+     *
+     * @var integer
+     */
+    protected $maxTimestamp = 0;
+
+    /**
      * Returns a pointcut by identifier
      *
      * @param string $id Pointcut identifier
@@ -107,30 +121,11 @@ class WarlockContainer extends Container implements AspectContainer
         return $result;
     }
 
-    // METHODS AND PROPERTIES BELOW ARE NOT THE PART OF API!
-
-    /**
-     * List of resources for application
-     *
-     * @deprecated
-     * @var array
-     */
-    protected $resources = array();
-
-    /**
-     * Cached timestamp for resources
-     *
-     * @deprecated
-     * @var integer
-     */
-    protected $maxTimestamp = 0;
-
     /**
      * Add an resource for container
      *
      * TODO: use symfony/config component for creating the cache
      *
-     * @deprecated
      * Resources is used to check the freshness of cache
      */
     public function addResource($resource)
@@ -143,7 +138,6 @@ class WarlockContainer extends Container implements AspectContainer
      * Checks the freshness of container
      *
      * @param integer $timestamp
-     * @deprecated
      *
      * @return bool Whether or not container is fresh
      */
@@ -153,5 +147,15 @@ class WarlockContainer extends Container implements AspectContainer
             $this->maxTimestamp = max(array_map('filemtime', $this->resources));
         }
         return $this->maxTimestamp < $timestamp;
+    }
+
+    /**
+     * Returns the list of AOP resources
+     *
+     * @return array
+     */
+    public function getResources()
+    {
+        return $this->resources;
     }
 }

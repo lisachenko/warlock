@@ -11,7 +11,7 @@
         <parameter key="aspect.pointcut.grammar.class">Go\Aop\Pointcut\PointcutGrammar</parameter>
         <parameter key="aspect.pointcut.parser.class">Dissect\Parser\LALR1\Parser</parameter>
         <parameter key="aspect.loader.class">Go\Core\AspectLoader</parameter>
-        <parameter key="aspect.weaver.class">Go\Core\AspectWeaver</parameter>
+        <parameter key="aspect.advice_matcher.class">Go\Core\AdviceMatcher</parameter>
         <parameter key="aspect.loader.general.extension.class">Go\Core\GeneralAspectLoaderExtension</parameter>
         <parameter key="aspect.loader.introduction.extension.class">Go\Core\IntroductionAspectExtension</parameter>
     </parameters>
@@ -53,7 +53,7 @@
             </call>
         </service>
 
-        <service id="aspect.weaver" class="%aspect.weaver.class%">
+        <service id="aspect.advice_matcher" class="%aspect.advice_matcher.class%">
             <argument type="service" id="aspect.loader"/>
             <argument type="service" id="service_container"/>
         </service>
