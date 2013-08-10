@@ -47,6 +47,7 @@ class WarlockKernel extends AspectKernel
             $loader->load('demo_aspects.xml'); // TODO: Remove this hardcoded example
 
             $container->addCompilerPass(new AspectCollectorPass());
+            $container->setParameter('kernel.interceptFunctions', !empty($options['interceptFunctions']));
             $container->compile();
 
             $dumper = new PhpDumper($container);
@@ -61,6 +62,7 @@ class WarlockKernel extends AspectKernel
         require_once $file;
 
         parent::init($options);
+        $this->container->addResource($file);
     }
 
     /**

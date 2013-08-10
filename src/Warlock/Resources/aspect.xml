@@ -9,7 +9,7 @@
         <parameter key="aspect.annotation.raw.reader.class">Go\Instrument\RawAnnotationReader</parameter>
         <parameter key="aspect.pointcut.lexer.class">Go\Aop\Pointcut\PointcutLexer</parameter>
         <parameter key="aspect.pointcut.grammar.class">Go\Aop\Pointcut\PointcutGrammar</parameter>
-        <parameter key="aspect.pointcut.parser.class">Dissect\Parser\LALR1\Parser</parameter>
+        <parameter key="aspect.pointcut.parser.class">Go\Aop\Pointcut\PointcutParser</parameter>
         <parameter key="aspect.loader.class">Go\Core\AspectLoader</parameter>
         <parameter key="aspect.advice_matcher.class">Go\Core\AdviceMatcher</parameter>
         <parameter key="aspect.loader.general.extension.class">Go\Core\GeneralAspectLoaderExtension</parameter>
@@ -22,13 +22,13 @@
         <service id="aspect.annotation.raw.reader" class="%aspect.annotation.raw.reader.class%"/>
 
         <service id="aspect.pointcut.lexer" class="%aspect.pointcut.lexer.class%"/>
-        <service id="aspect.pointcut.grammar" class="%aspect.pointcut.grammar.class%">
+        <service id="aspect.pointcut.grammar" class="%aspect.pointcut.grammar.class%" public="false">
             <argument type="service" id="service_container"/>
+            <argument type="service" id="aspect.annotation.raw.reader"/>
         </service>
 
         <service id="aspect.pointcut.parser" class="%aspect.pointcut.parser.class%">
             <argument type="service" id="aspect.pointcut.grammar"/>
-            <!--TODO: inject parse table-->
         </service>
 
         <service id="aspect.loader.general.extension" class="%aspect.loader.general.extension.class%" public="false">
@@ -56,6 +56,7 @@
         <service id="aspect.advice_matcher" class="%aspect.advice_matcher.class%">
             <argument type="service" id="aspect.loader"/>
             <argument type="service" id="service_container"/>
+            <argument type="string">%kernel.interceptFunctions%</argument>
         </service>
 
     </services>

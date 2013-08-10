@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "9d0fc7afafa632552d1703bc08d5be12",
+    "hash": "a6aefa227c00deffc9a0caf277a60bd9",
     "packages": [
         {
             "name": "andrewsville/php-token-reflection",
@@ -177,16 +177,16 @@
         },
         {
             "name": "lisachenko/go-aop-php",
-            "version": "dev-master",
+            "version": "0.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/lisachenko/go-aop-php.git",
-                "reference": "fbd8d1085c0efa39cda5e909831cbc580906dd96"
+                "reference": "0.4.0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/lisachenko/go-aop-php/zipball/fbd8d1085c0efa39cda5e909831cbc580906dd96",
-                "reference": "fbd8d1085c0efa39cda5e909831cbc580906dd96",
+                "url": "https://api.github.com/repos/lisachenko/go-aop-php/zipball/0.4.0",
+                "reference": "0.4.0",
                 "shasum": ""
             },
             "require": {
@@ -228,7 +228,7 @@
                 "library",
                 "php"
             ],
-            "time": "2013-07-23 19:50:14"
+            "time": "2013-08-04 19:56:39"
         },
         {
             "name": "symfony/config",
@@ -390,7 +390,6 @@
     ],
     "minimum-stability": "dev",
     "stability-flags": {
-        "lisachenko/go-aop-php": 20,
         "symfony/dependency-injection": 20,
         "symfony/config": 20
     },
