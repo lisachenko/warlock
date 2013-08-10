@@ -7,7 +7,9 @@ use Doctrine\Common\Annotations\Reader;
 use Go\Aop\Aspect;
 use Go\Aop\Intercept\FieldAccess;
 use Go\Core\AspectContainer;
-use Go\Lang\Annotation\Before;
+use Go\Lang\Annotation\Around;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Warlock\Annotation\Autowired;
 use Warlock\WarlockContainer;
 
 /**
@@ -17,6 +19,10 @@ use Warlock\WarlockContainer;
  */
 class AutowiringAspect implements Aspect
 {
+    /**
+     * Name of the annotation class to match
+     */
+    const ANNOTATION_NAME = 'Warlock\Annotation\Autowired';
 
     /**
      * Instance of aspect container for injecting dependencies
@@ -47,10 +53,11 @@ class AutowiringAspect implements Aspect
     /**
      * Intercepts access to autowired properties and injects specified dependency
      *
-     * @Before("access(protected|public **->*)")
+     * @Around("@access(Warlock\Annotation\Autowired)")
      *
-     * @todo Use annotation joinpoint (need to rewrite parser for better handling of \@annotation)
      * @param FieldAccess $joinpoint Autowiring joinpoint
+     *
+     * @return mixed
      */
     public function beforeAccessingAutowiredProperty(FieldAccess $joinpoint)
     {
@@ -58,10 +65,17 @@ class AutowiringAspect implements Aspect
         $field = $joinpoint->getField();
 
         if ($joinpoint->getAccessType() == FieldAccess::READ) {
-            $autowire = $this->reader->getPropertyAnnotation($field, 'Warlock\Annotation\Autowired');
-            if ($autowire) {
-                $field->setValue($obj, $this->container->get($autowire->value));
+            /** @var Autowired $autowired */
+            $autowired = $this->reader->getPropertyAnnotation($field, self::ANNOTATION_NAME);
+            $strategy  = ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE;
+            if (!$autowired->required) {
+                $strategy = ContainerInterface::NULL_ON_INVALID_REFERENCE;
             }
+            $value = $this->container->get($autowired, $strategy);
+        } else {
+            $value = $joinpoint->proceed();
         }
+        $field->setValue($obj, $value);
+        return $value;
     }
 }
