@@ -16,6 +16,8 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Dumper\PhpDumper;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Warlock\DependencyInjection\Compiler\AspectCollectorPass;
+use Warlock\DependencyInjection\Compiler\ComponentScannerPass;
+use Warlock\DependencyInjection\Compiler\InterfaceBinderPass;
 
 /**
  * Class WarlockKernel is responsible to initialize AOP and DIC component
@@ -43,9 +45,12 @@ class WarlockKernel extends AspectKernel
 
             $container = new ContainerBuilder();
             $loader    = new XmlFileLoader($container, new FileLocator(__DIR__ . '/Resources'));
+            $loader->load('components.xml');
             $loader->load('aspect.xml');
             $loader->load('demo_aspects.xml'); // TODO: Remove this hardcoded example
 
+            $container->addCompilerPass(new ComponentScannerPass());
+            $container->addCompilerPass(new InterfaceBinderPass());
             $container->addCompilerPass(new AspectCollectorPass());
             $container->setParameter('kernel.interceptFunctions', !empty($options['interceptFunctions']));
             $container->compile();
