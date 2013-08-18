@@ -79,8 +79,10 @@ class InterfaceResolver
                 throw new \InvalidArgumentException($errorMessage);
             }
             $serviceId = reset($this->bindlings[$interface]);
-        } else {
+        } elseif ($qualifierId) {
             $serviceId = $qualifierId;
+        } else {
+            throw new \InvalidArgumentException("There is no binding for {$interface} interface");
         }
         return $this->container->get($serviceId);
     }
