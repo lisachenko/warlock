@@ -49,7 +49,7 @@ class WarlockKernel extends AspectKernel
             $loader->load('aspect.xml');
             $loader->load('demo_aspects.xml'); // TODO: Remove this hardcoded example
 
-            $container->addCompilerPass(new ComponentScannerPass());
+            $container->addCompilerPass(new ComponentScannerPass($options['appDir'] . '/src'));
             $container->addCompilerPass(new InterfaceBinderPass());
             $container->addCompilerPass(new AspectCollectorPass());
             $container->setParameter('kernel.interceptFunctions', !empty($options['interceptFunctions']));

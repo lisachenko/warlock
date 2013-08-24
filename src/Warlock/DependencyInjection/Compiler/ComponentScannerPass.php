@@ -8,6 +8,7 @@
 namespace Warlock\DependencyInjection\Compiler;
 
 use Go\Instrument\RawAnnotationReader;
+use Symfony\Component\Config\Resource\DirectoryResource;
 use Symfony\Component\Config\Resource\FileResource;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -18,6 +19,8 @@ use TokenReflection\ReflectionMethod;
 use TokenReflection\ReflectionParameter;
 use TokenReflection\ReflectionClass;
 use TokenReflection\ReflectionFileNamespace;
+use Warlock\Annotation\Qualifier;
+use Warlock\Exception\SourceRuntimeException;
 
 class ComponentScannerPass implements CompilerPassInterface
 {
@@ -41,10 +44,13 @@ class ComponentScannerPass implements CompilerPassInterface
      */
     protected $reader = null;
 
-    public function __construct()
+    protected $directory = '';
+
+    public function __construct($directory)
     {
-        $this->broker = new Broker(new Broker\Backend\Memory());
-        $this->reader = new RawAnnotationReader();
+        $this->broker    = new Broker(new Broker\Backend\Memory());
+        $this->reader    = new RawAnnotationReader();
+        $this->directory = $directory;
     }
 
     /**
@@ -57,7 +63,7 @@ class ComponentScannerPass implements CompilerPassInterface
         /** @var \SplFileInfo[] $files */
         $files = new \RecursiveIteratorIterator(
             new \RecursiveDirectoryIterator(
-                'c:\Work\warlock\src',
+                $this->directory,
                 \FilesystemIterator::KEY_AS_PATHNAME |
                 \FilesystemIterator::CURRENT_AS_FILEINFO |
                 \FilesystemIterator::SKIP_DOTS
@@ -73,7 +79,7 @@ class ComponentScannerPass implements CompilerPassInterface
             if (strpos($content, '@Component') === false) {
                 continue;
             }
-            $componentCount = 0;
+
             $reflectionFile = $this->broker->processString($content, $file->getPathname(), true);
             /** @var ReflectionFileNamespace[] $namespaces */
             $namespaces = $reflectionFile->getNamespaces();
@@ -82,15 +88,11 @@ class ComponentScannerPass implements CompilerPassInterface
 
                 $classes = $namespace->getClasses();
                 foreach ($classes as $class) {
-                    $isRegistered = $this->checkAndRegisterComponent($class, $container);
-                    $componentCount += (int) $isRegistered;
+                    $this->checkAndRegisterComponent($class, $container);
                 }
             }
-
-            if ($componentCount) {
-                $container->addResource(new FileResource($file->getPathname()));
-            }
         }
+        $container->addResource(new DirectoryResource($this->directory));
     }
 
     /**
@@ -138,27 +140,55 @@ class ComponentScannerPass implements CompilerPassInterface
      */
     protected function bindConstructorArgs(ReflectionMethod $ctor, Definition $definition, ContainerBuilder $container)
     {
+        $parameterQualifiers = $this->getQualifiers($ctor);
         foreach ($ctor->getParameters() as $parameter) {
 
             /** @var $parameter ReflectionParameter */
-            $typehint = $parameter->getClass();
-            if (!$typehint) {
-                throw new \RuntimeException("Can not automatically bind parameter {$parameter->name}");
+            $typehintClass = $parameter->getClass();
+            $hasQualifier  = isset($parameterQualifiers[$parameter->name]);
+            if (!$typehintClass && !$hasQualifier) {
+                $error = "Can not automatically bind parameter {$parameter->name}. ";
+                $error .= "Please, use @Qualifier annotation to specify the concrete service or parameter.";
+                throw new SourceRuntimeException($error, $parameter);
             }
 
-            $typehintName = $typehint->getName();
-            $serviceName  = str_replace('\\', '.', $typehintName);
+            $qualifier = $hasQualifier ? $parameterQualifiers[$parameter->name] : null;
+            if ($hasQualifier && $qualifier->type === Qualifier::PARAMETER) {
+                $definition->addArgument("%{$qualifier->name}%");
+                continue;
+            }
+
+            $identifier  = $typehintClass ? $typehintClass->getName() : $qualifier->name;
+            $serviceName = str_replace('\\', '.', $identifier);
 
             if (!$container->hasDefinition($serviceName)) {
                 $injector = $container->register($serviceName, $serviceName);
                 $injector
                     ->setFactoryService('warlock.interface.resolver')
                     ->setFactoryMethod('resolve')
-                    ->addArgument($typehintName)
+                    ->addArgument($identifier)
                     ->setPublic('false');
             }
             $definition->addArgument(new Reference($serviceName));
         }
+    }
+
+    /**
+     * Return the list of additional qualifiers for parameters
+     *
+     * @param ReflectionMethod $ctor
+     * @return Qualifier[]
+     */
+    private function getQualifiers(ReflectionMethod $ctor)
+    {
+        $qualifiers  = array();
+        $annotations = $this->reader->getMethodAnnotations($ctor);
+        foreach ($annotations as $annotation) {
+            if ($annotation instanceof Qualifier) {
+                $qualifiers[$annotation->value] = $annotation;
+            }
+        }
+        return $qualifiers;
     }
 
 }
