@@ -11,6 +11,7 @@ use Go\Core\AspectContainer;
 use Go\Core\AspectKernel;
 use Symfony\Component\Config\ConfigCache;
 use Symfony\Component\Config\FileLocator;
+use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Dumper\PhpDumper;
@@ -50,8 +51,8 @@ class WarlockKernel extends AspectKernel
             $loader->load('demo_aspects.xml'); // TODO: Remove this hardcoded example
 
             $container->addCompilerPass(new ComponentScannerPass($options['appDir'] . '/src'));
-            $container->addCompilerPass(new InterfaceBinderPass());
             $container->addCompilerPass(new AspectCollectorPass());
+            $container->addCompilerPass(new InterfaceBinderPass(), PassConfig::TYPE_AFTER_REMOVING);
             $container->setParameter('kernel.interceptFunctions', !empty($options['interceptFunctions']));
             $container->compile();
 

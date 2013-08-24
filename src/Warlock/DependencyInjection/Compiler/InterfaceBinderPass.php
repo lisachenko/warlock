@@ -23,14 +23,16 @@ class InterfaceBinderPass implements CompilerPassInterface
      */
     public function process(ContainerBuilder $container)
     {
-        $interfaceProviders = $container->findTaggedServiceIds('warlock.interface');
-        $definition = $container->getDefinition('warlock.interface.resolver');
+        $resolver = $container->getDefinition('warlock.interface.resolver');
+        $bindings = array();
 
-        foreach ($interfaceProviders as $serviceId => $tags) {
-            foreach ($tags as $tag) {
-                $interfaceName = $tag['provide'];
-                $definition->addMethodCall('bind', array($interfaceName, $serviceId));
+        foreach ($container->getDefinitions() as $serviceId => $definition) {
+            $reflector  = new \ReflectionClass($definition->getClass());
+            $interfaces = $reflector->getInterfaces();
+            foreach ($interfaces as $interface) {
+                $bindings[$interface->name][] = $serviceId;
             }
         }
+        $resolver->addMethodCall('addBindings', array($bindings));
     }
 }

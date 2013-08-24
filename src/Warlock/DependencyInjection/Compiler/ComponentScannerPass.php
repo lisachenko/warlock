@@ -117,10 +117,6 @@ class ComponentScannerPass implements CompilerPassInterface
         if ($constructor) {
             $this->bindConstructorArgs($constructor, $definition, $container);
         }
-        $interfaces  = $class->getOwnInterfaceNames();
-        foreach ($interfaces as $interface) {
-            $definition->addTag('warlock.interface', array('provide' => $interface));
-        }
         if ((string) $annotation) {
             // Make an alias for annotation
             $container->setAlias($annotation, $serviceName);
@@ -162,12 +158,16 @@ class ComponentScannerPass implements CompilerPassInterface
             $serviceName = str_replace('\\', '.', $identifier);
 
             if (!$container->hasDefinition($serviceName)) {
-                $injector = $container->register($serviceName, $serviceName);
+                $injector = $container->register($serviceName, $identifier);
                 $injector
                     ->setFactoryService('warlock.interface.resolver')
                     ->setFactoryMethod('resolve')
                     ->addArgument($identifier)
                     ->setPublic('false');
+
+                if ($hasQualifier) {
+                    $injector->addArgument($qualifier->name);
+                }
             }
             $definition->addArgument(new Reference($serviceName));
         }

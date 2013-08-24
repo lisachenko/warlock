@@ -41,48 +41,57 @@ class InterfaceResolver
      *
      * @param string $interface Interface name to bind
      * @param string $serviceId Identifier os service that implements this interface
-     * @param string|null $qualifierId Optional qualifier of binding
      */
-    public function bind($interface, $serviceId, $qualifierId = null)
+    public function bind($interface, $serviceId)
     {
-        $id = $qualifierId ?: $serviceId;
-        $this->bindlings[$interface][$id] = $serviceId;
+        $this->bindlings[$interface][] = $serviceId;
+    }
+
+    /**
+     * Add new bindings to the container
+     *
+     * @param array $bindings
+     */
+    public function addBindings(array $bindings)
+    {
+        $this->bindlings = array_merge_recursive($this->bindlings, $bindings);
     }
 
     /**
      * Resolves an interface to the concrete service that implements it
      *
      * @param string $interface Interface name to resolve
-     * @param string|null $qualifierId Optional qualifier name
+     * @param string|null $serviceId Optional service qualifier
      *
      * @return object Specific service from the container that implements this interface
      * @throws \InvalidArgumentException
      */
-    public function resolve($interface, $qualifierId = null)
+    public function resolve($interface, $serviceId = null)
     {
-        $serviceId   = null;
         $hasBinding  = isset($this->bindlings[$interface]);
-        $hasConcrete = $qualifierId && isset($this->bindlings[$interface][$qualifierId]);
+        $hasConcrete = $hasBinding && $serviceId && in_array($serviceId, $this->bindlings[$interface]);
 
-        if ($qualifierId && !$hasConcrete) {
-            $errorMessage = "There is not binding for {$interface} interface with qualifier {$qualifierId}";
+        if ($serviceId && !$hasConcrete) {
+            $errorMessage = "There are no public services for the {$interface} interface with identifier {$serviceId}";
             throw new \InvalidArgumentException($errorMessage);
         }
 
         if ($hasConcrete) {
-            $serviceId = $this->bindlings[$interface][$qualifierId];
-        } elseif ($hasBinding) {
+            return $this->container->get($serviceId);
+        }
+
+        if ($hasBinding) {
             if (count($this->bindlings[$interface]) !== 1) {
-                $possibleQualifiers = array_keys($this->bindlings[$interface]);
-                $errorMessage = "There are multiple bindings for the interface {$interface}. ";
-                $errorMessage .= "Please, choose one of " . join(', ', $possibleQualifiers) . " qualifier";
+                $possibleQualifiers = $this->bindlings[$interface];
+                $errorMessage = "There are multiple services that provide {$interface} interface. ";
+                $errorMessage .= "Can not automatically inject an interface provider. ";
+                $errorMessage .= "Please, choose one of " . join(', ', $possibleQualifiers) . ".";
                 throw new \InvalidArgumentException($errorMessage);
             }
-            $serviceId = reset($this->bindlings[$interface]);
-        } elseif ($qualifierId) {
-            $serviceId = $qualifierId;
+            $serviceId = $this->bindlings[$interface][0];
         } else {
-            throw new \InvalidArgumentException("There is no binding for {$interface} interface");
+            $errorMessage = "There are no public services that can provide {$interface} interface.";
+            throw new \InvalidArgumentException($errorMessage);
         }
         return $this->container->get($serviceId);
     }
